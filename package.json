@@ -1,0 +1,11 @@
+{
+  "name": "proxyw",
+  "version": "1.0.0",
+  "description": "A general-purpose proxy",
+  "main": "index.js",
+  "dependencies": {
+    "http-proxy-middleware": "*"
+  },
+  "author": "",
+  "license": "ISC"
+}
