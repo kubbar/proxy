@@ -1,6 +1,7 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const chromium = require('chrome-aws-lambda');
 const puppeteerCore = require('puppeteer-core');
 const express = require('express');
 const app = express();
@@ -12,14 +13,14 @@ app.get('/proxy', async (req, res) => {
 
   let browser;
   try {
-    // تحديد مسار Puppeteer التنفيذي المناسب لبيئة Vercel/Render
-    const executablePath = process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable';
+    const executablePath = await chromium.executablePath;
 
-    browser = await puppeteerCore.launch({ 
+    browser = await puppeteerCore.launch({
       headless: true,
-      executablePath: executablePath,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      executablePath: executablePath || '/usr/bin/google-chrome-stable',
+      args: chromium.args
     });
+
     const page = await browser.newPage();
     await page.goto(targetUrl, { waitUntil: 'networkidle2' });
     const cookies = await page.cookies();

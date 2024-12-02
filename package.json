@@ -4,6 +4,7 @@
   "description": "A general-purpose proxy",
   "main": "index.js",
   "dependencies": {
+    "chrome-aws-lambda": "*",
     "express": "*",
     "http-proxy-middleware": "*",
     "puppeteer-core": "*",
