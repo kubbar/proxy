@@ -12,7 +12,14 @@ app.get('/proxy', async (req, res) => {
 
   let browser;
   try {
-    browser = await puppeteerCore.launch({ headless: true });
+    // تحديد مسار Puppeteer التنفيذي المناسب لبيئة Vercel/Render
+    const executablePath = process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable';
+
+    browser = await puppeteerCore.launch({ 
+      headless: true,
+      executablePath: executablePath,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     await page.goto(targetUrl, { waitUntil: 'networkidle2' });
     const cookies = await page.cookies();
