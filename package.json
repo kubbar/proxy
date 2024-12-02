@@ -6,6 +6,7 @@
   "dependencies": {
     "express": "*",
     "http-proxy-middleware": "*",
+    "puppeteer-core": "*",
     "puppeteer-extra": "*",
     "puppeteer-extra-plugin-stealth": "*"
   },

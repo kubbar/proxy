@@ -1,6 +1,7 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const puppeteerCore = require('puppeteer-core');
 const express = require('express');
 const app = express();
 
@@ -11,7 +12,7 @@ app.get('/proxy', async (req, res) => {
 
   let browser;
   try {
-    browser = await puppeteer.launch({ headless: true });
+    browser = await puppeteerCore.launch({ headless: true });
     const page = await browser.newPage();
     await page.goto(targetUrl, { waitUntil: 'networkidle2' });
     const cookies = await page.cookies();
