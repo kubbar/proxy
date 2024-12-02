@@ -4,15 +4,32 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const chromium = require('chrome-aws-lambda');
 const puppeteerCore = require('puppeteer-core');
 const express = require('express');
+const childProcess = require('child_process');
 const app = express();
 
 puppeteer.use(StealthPlugin());
+
+// تثبيت مكتبات النظام اللازمة
+const installDependencies = () => {
+  return new Promise((resolve, reject) => {
+    childProcess.exec('apt-get update && apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2', (error, stdout, stderr) => {
+      if (error) {
+        console.error('Error installing dependencies:', stderr);
+        reject(error);
+      } else {
+        console.log('Dependencies installed:', stdout);
+        resolve();
+      }
+    });
+  });
+};
 
 app.get('/proxy', async (req, res) => {
   const targetUrl = decodeURIComponent(req.query.target);
 
   let browser;
   try {
+    await installDependencies();
     const executablePath = await chromium.executablePath;
 
     browser = await puppeteerCore.launch({
