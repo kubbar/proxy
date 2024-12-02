@@ -4,9 +4,10 @@
   "description": "A general-purpose proxy",
   "main": "index.js",
   "dependencies": {
-    "cookie-parser": "*",
     "express": "*",
-    "http-proxy-middleware": "*"
+    "http-proxy-middleware": "*",
+    "puppeteer-extra": "*",
+    "puppeteer-extra-plugin-stealth": "*"
   },
   "author": "",
   "license": "ISC"
