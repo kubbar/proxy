@@ -4,7 +4,6 @@ const app = express();
 
 // إعداد وسيط البروكسي
 app.use('/proxy', createProxyMiddleware({
-  target: '',
   changeOrigin: true,
   onProxyReq: (proxyReq, req) => {
     const targetUrl = decodeURIComponent(req.query.target);
@@ -15,27 +14,19 @@ app.use('/proxy', createProxyMiddleware({
     delete proxyRes.headers['x-frame-options'];
     delete proxyRes.headers['content-security-policy'];
   },
-  pathRewrite: (path, req) => {
-    const targetUrl = decodeURIComponent(req.query.target);
-    return new URL(targetUrl).pathname + new URL(targetUrl).search;
-  },
   router: (req) => {
     const targetUrl = decodeURIComponent(req.query.target);
-    return new URL(targetUrl).origin;
+    return targetUrl.split('?')[0];
   },
-  selfHandleResponse: true,
-  onProxyReqWs: (proxyReq, req, socket, options, head) => {
-    proxyReq.setHeader('sec-websocket-protocol', 'base64');
+  pathRewrite: (path, req) => {
+    const targetUrl = decodeURIComponent(req.query.target);
+    return targetUrl.split('?')[1] ? '?' + targetUrl.split('?')[1] : '';
   },
   onError: (err, req, res) => {
     res.writeHead(500, {
       'Content-Type': 'text/plain',
     });
     res.end('Something went wrong. And we are reporting a custom error message.');
-  },
-  onProxyReqOptDecorator: (proxyReqOpts, srcReq) => {
-    proxyReqOpts.rejectUnauthorized = false;
-    return proxyReqOpts;
   },
 }));
 
