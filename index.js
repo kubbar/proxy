@@ -1,10 +1,10 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const HttpProxyAgent = require('http-proxy-agent');
+const HttpsProxyAgent = require('https-proxy-agent');
 const app = express();
 
 const proxyUrl = '206.189.135.6:3128'; // استبدل هذا بعنوان البروكسي الخاص بك
-const agent = new HttpProxyAgent(proxyUrl);
+const agent = new HttpsProxyAgent(proxyUrl);
 
 app.use('/proxy', createProxyMiddleware({
   target: '',
