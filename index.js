@@ -1,14 +1,19 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const HttpProxyAgent = require('http-proxy-agent');
 const app = express();
 
-// إعداد وسيط البروكسي
+const proxyUrl = '206.189.135.6:3128'; // استبدل هذا بعنوان البروكسي الخاص بك
+const agent = new HttpProxyAgent(proxyUrl);
+
 app.use('/proxy', createProxyMiddleware({
+  target: '',
   changeOrigin: true,
+  agent: agent,
   onProxyReq: (proxyReq, req) => {
     const targetUrl = decodeURIComponent(req.query.target);
     proxyReq.setHeader('Referer', targetUrl);
-    proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36');
+    proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML، like Gecko) Chrome/131.0.0.0 Safari/537.36');
   },
   onProxyRes: (proxyRes, req, res) => {
     delete proxyRes.headers['x-frame-options'];
