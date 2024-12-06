@@ -7,11 +7,11 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "puppeteer": "^19.11.1",
-    "puppeteer-extra": "^3.1.18",
-    "puppeteer-extra-plugin-stealth": "^2.7.5",
-    "http-proxy-middleware": "^2.0.1"
+    "express": "*",
+    "puppeteer": "*",
+    "puppeteer-extra": "*",
+    "puppeteer-extra-plugin-stealth": "*",
+    "http-proxy-middleware": "*"
   },
   "author": "",
   "license": "ISC"

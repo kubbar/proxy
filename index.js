@@ -11,8 +11,9 @@ app.get('/proxy', async (req, res) => {
 
   let browser;
   try {
+    // تحديث إلى headless الجديد
     browser = await puppeteer.launch({
-      headless: true,
+      headless: "new",
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
