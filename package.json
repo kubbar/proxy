@@ -1,5 +1,5 @@
 {
-  "name": "proxy",
+  "name": "proxyw",
   "version": "1.0.0",
   "description": "A general-purpose proxy",
   "main": "index.js",
@@ -8,10 +8,7 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "http-proxy-middleware": "^3.0.3",
-    "puppeteer": "^23.10.1",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "http-proxy-middleware": "^2.0.7"
   },
   "author": "",
   "license": "ISC"
