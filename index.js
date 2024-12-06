@@ -14,10 +14,6 @@ app.use('/proxy', createProxyMiddleware({
     // إزالة الرؤوس التي قد تسبب مشاكل في التحميل
     delete proxyRes.headers['x-frame-options'];
     delete proxyRes.headers['content-security-policy'];
-    // التعامل مع إعادة التوجيه
-    if (proxyRes.headers['location']) {
-      proxyRes.headers['location'] = proxyRes.headers['location'].replace('http://', 'https://');
-    }
   },
   router: (req) => {
     const targetUrl = decodeURIComponent(req.query.target);
