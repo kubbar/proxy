@@ -7,9 +7,9 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "*",
-    "http-proxy-middleware": "*",
-    "http-proxy-agent": "*"
+    "express": "^4.21.2",
+    "http-proxy-agent": "^5.0.0",
+    "http-proxy-middleware": "^2.0.7"
   },
   "author": "",
   "license": "ISC"
