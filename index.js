@@ -19,7 +19,6 @@ app.get('/proxy', async (req, res) => {
     await page.goto(targetUrl, { waitUntil: 'networkidle2' });
     const cookies = await page.cookies();
 
-    // استخدم بروكسي لتجاوز القيود
     res.setHeader('set-cookie', cookies.map(cookie => `${cookie.name}=${cookie.value}; path=${cookie.path}`));
     res.redirect(targetUrl);
   } catch (error) {
