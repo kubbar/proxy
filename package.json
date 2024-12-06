@@ -7,8 +7,8 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "*",
-    "http-proxy-middleware": "*"
+    "express": "^4.21.2",
+    "http-proxy-middleware": "^3.0.3"
   },
   "author": "",
   "license": "ISC"
