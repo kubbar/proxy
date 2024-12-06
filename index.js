@@ -1,47 +1,26 @@
 const express = require('express');
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 
-puppeteer.use(StealthPlugin());
-
-app.get('/proxy', async (req, res) => {
-  const targetUrl = decodeURIComponent(req.query.target);
-
-  let browser;
-  try {
-    // تحديث إلى headless الجديد
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.goto(targetUrl, { waitUntil: 'networkidle2' });
-    const cookies = await page.cookies();
-
-    res.setHeader('set-cookie', cookies.map(cookie => `${cookie.name}=${cookie.value}; path=${cookie.path}`));
-    res.redirect(targetUrl);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Error accessing the target URL.');
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
-  }
-});
-
+// إعداد وسيط البروكسي
 app.use('/proxy', createProxyMiddleware({
-  target: '',
+  target: '', // سيتم استبدال الهدف لاحقاً
   changeOrigin: true,
-  onProxyReq: (proxyReq, req) => {
+  pathRewrite: (path, req) => {
     const targetUrl = decodeURIComponent(req.query.target);
-    proxyReq.setHeader('Referer', 'https://www.elahmad.com');
-    proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML، مثل Gecko) Chrome/131.0.0.0 Safari/537.36');
-    proxyReq.path = targetUrl;
+    return targetUrl.replace(/^https?:\/\/[^\/]+/, '');
   },
   router: (req) => decodeURIComponent(req.query.target),
+  onProxyReq: (proxyReq, req, res) => {
+    const targetUrl = decodeURIComponent(req.query.target);
+    proxyReq.setHeader('Referer', targetUrl);
+    proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML، مثل Gecko) Chrome/131.0.0.0 Safari/537.36');
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    // إزالة الرؤوس التي قد تسبب مشاكل في التحميل
+    delete proxyRes.headers['x-frame-options'];
+    delete proxyRes.headers['content-security-policy'];
+  },
 }));
 
 app.listen(3000, () => {
