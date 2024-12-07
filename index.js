@@ -1,40 +1,72 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const HttpProxyAgent = require('http-proxy-agent');
+const http = require('http');
+const https = require('https');
+const url = require('url');
+
 const app = express();
+const port = process.env.PORT || 3000;
 
-const proxyUrl = 'http://206.189.135.6:3128'; // عنوان البروكسي الخاص بك
-const agent = new HttpProxyAgent(proxyUrl);
+const proxyServer = 'http://206.189.135.6:3128';
 
-app.use('/proxy', createProxyMiddleware({
-  target: '',
+// تكوين وكيل HTTP و HTTPS
+const httpAgent = new http.Agent({ keepAlive: true });
+const httpsAgent = new https.Agent({ 
+  keepAlive: true,
+  rejectUnauthorized: false // تجاهل أخطاء الشهادات غير الصالحة
+});
+
+// تعديل طلبات HTTP و HTTPS لاستخدام البروكسي
+const oldHttpRequest = http.request;
+http.request = function(options, callback) {
+  if (typeof options === 'string') options = url.parse(options);
+  options.agent = httpAgent;
+  options.proxy = proxyServer;
+  return oldHttpRequest(options, callback);
+};
+
+const oldHttpsRequest = https.request;
+https.request = function(options, callback) {
+  if (typeof options === 'string') options = url.parse(options);
+  options.agent = httpsAgent;
+  options.proxy = proxyServer;
+  return oldHttpsRequest(options, callback);
+};
+
+// إنشاء وسيط البروكسي
+const proxy = createProxyMiddleware({
+  target: proxyServer,
   changeOrigin: true,
-  agent: agent,
-  onProxyReq: (proxyReq, req) => {
-    const targetUrl = decodeURIComponent(req.query.target);
-    proxyReq.setHeader('Referer', targetUrl);
-    proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML، مثل Gecko) Chrome/131.0.0.0 Safari/537.36');
+  ws: true,
+  pathRewrite: {
+    '^/': '/'
   },
-  onProxyRes: (proxyRes, req, res) => {
-    delete proxyRes.headers['x-frame-options'];
-    delete proxyRes.headers['content-security-policy'];
+  router: function(req) {
+    return req.url.slice(1);
   },
-  router: (req) => {
-    const targetUrl = decodeURIComponent(req.query.target);
-    return targetUrl.split('?')[0];
+  onProxyReq: function(proxyReq, req, res) {
+    const target = req.url.slice(1);
+    proxyReq.path = target;
+    proxyReq.setHeader('Host', url.parse(target).host);
   },
-  pathRewrite: (path, req) => {
-    const targetUrl = decodeURIComponent(req.query.target);
-    return targetUrl.split('?')[1] ? '?' + targetUrl.split('?')[1] : '';
-  },
-  onError: (err, req, res) => {
+  onError: function(err, req, res) {
+    console.error('Proxy error:', err);
     res.writeHead(500, {
-      'Content-Type': 'text/plain',
+      'Content-Type': 'text/plain'
     });
-    res.end('Something went wrong. And we are reporting a custom error message.');
-  },
-}));
+    res.end('Proxy Error');
+  }
+});
 
-app.listen(3000, () => {
-  console.log('Proxy server is running on port 3000');
+// استخدام الوسيط للمسارات التي تبدأ بـ http:// أو https://
+app.use('/:protocol(http|https)://*', proxy);
+
+// التعامل مع الطلبات غير الصالحة
+app.use('*', (req, res) => {
+  res.status(400).send('Invalid URL. Please use the format: /http://example.com or /https://example.com');
+});
+
+// بدء تشغيل الخادم
+app.listen(port, () => {
+  console.log(`Proxy server running on port ${port}`);
 });
